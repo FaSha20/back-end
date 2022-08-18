@@ -1,75 +1,83 @@
-//Like Fields : id, userId (id of user who liked), postId (id of the liked post)
+//Like Fields : 
+//id, user (ref to user who liked), post (id of the liked post), create time
 
 const express = require('express');
+const mongoose = require('mongoose');
+const auth = require('../middleware/auth');
+const admin = require('../middleware/admin');
+const selfOrAdmin = require('../middleware/selfOrAdmin');
 const router = express.Router();
 const Joi = require('joi');
-const posts = require('./posts');
-const users = require('./users');
+const password_checking = require('joi-password-complexity');
+const _ = require('lodash');
+const jwt = require('jsonwebtoken');
+const config = require('config');
+const bcrypt = require('bcrypt');
+const {Post} = require('./posts');
+const {User} = require('./users');
 
 
-const likeDB = [
-    { id: 1, postId: 2, userId: 1 },
-    { id: 2, postId: 3, userId: 2 },
-    { id: 3, postId: 1, userId: 2 }
-];
+const likeSchema = mongoose.Schema({
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    },
+    post: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Post'
+    }   
+},{ timestamps: true});
+
+const Like = mongoose.model('Like', likeSchema);
    
 
 //GET ALL
-router.get('/', (req, res) => {
-    res.send(likeDB);
+router.get('/', async(req, res) => {
+    const likes = await Like
+        .find()
+        .populate('user', 'phone')
+        .populate('post', 'text');
+    res.send(likes);
 });
 
 //GET BY ID
-router.get('/:id', (req, res) => {
-    const like = likeDB.find(c => c.id === parseInt(req.params.id));
-    if(!like){ return res.status(404).send('ID dose not find')};
+router.get('/:id', async(req, res) => {
+    const like = await Like
+        .findById(req.params.id)
+        .populate('user', 'phone')
+        .populate('post', 'text');
+    if(!like) return res.status(404).send('ID dose not find');
     res.send(like);
 });
 
 //CREATE 
-router.post('/', (req, res) => {
-    const post = posts.posts.find(c => c.id === parseInt(req.body.postId));
-    if(!post){ return res.status(404).send('PostID dose not find') };
-    const user = users.users.find(c => c.id === parseInt(req.body.userId));
-    if(!user){ return res.status(404).send('UserID dose not find') };
+router.post('/', [auth], async(req, res) => {
+    const post = await Post.findById(req.body.post);
+    if(!post) return res.status(404).send('PostID dose not find') ;
     const { error } = dataValidation(req.body);
-    if(error){
-         return res.status(400).send(`Bad request: ${error.details[0].message} `);
-    }
-    const newlike = {
-        id : likeDB.length + 1,
-        postId : req.body.postId, 
-        userId : req.body.userId
-    }
-    likeDB.push(newlike);
-    res.send(newlike);    
-});
-
-
-//UPDATE 
-router.put('/:id', (req, res) => {
-    const post = posts.posts.find(c => c.id === parseInt(req.body.postId));
-    if(!post){ return res.status(404).send('PostID dose not find') };
-    const user = users.users.find(c => c.id === parseInt(req.body.userId));
-    if(!user){ return res.status(404).send('UserID dose not find') };
+    if(error)return res.status(400).send(`Bad request: ${error.details[0].message} `);
     
-    const like = likeDB.find(c => c.id === parseInt(req.params.id));
-    if(!like){ return res.status(404).send('ID dose not find') };
-    const { error } = dataValidation(req.body);
-    if(error){
-        return res.status(400).send(`Bad request: ${error.details[0].message} `);
-    }
-    like.postId = req.body.postId;
-    like.userId = req.body.userId;
-    res.send(like);
+    const like = await Like.create(_.pick(req.body, ['post']));
+    like.user = req.user._id;
+    await like.save();
+
+    post.likes.push(like);
+    await post.save();
+
+    res.send(_.pick(like, ['user', 'post']));    
 });
+
 
 //DELETE 
-router.delete('/:id', (req, res) => {
-    const like = likeDB.find(c => c.id === parseInt(req.params.id));
-    if(!like){ return res.status(404).send('ID dose not find') };
-    const index = likeDB.indexOf(like);
-    likeDB.splice(index, 1);
+router.delete('/:id', [auth, selfOrAdmin], async(req, res) => {
+    const like = await Like.findByIdAndRemove(req.params.id);
+    if(!like) return res.status(404).send('ID dose not find') ;
+    
+    const post = await Post.findById(like.post);
+    var index = post.likes.indexOf(like._id);
+    if(index != -1) post.likes.splice(index, 1);
+    await post.save();
+
     res.send(like);
 });
 
@@ -77,11 +85,10 @@ router.delete('/:id', (req, res) => {
 //functions
 function dataValidation(data){
     const schema = Joi.object({
-        postId: Joi.number().integer().min(1).required(),
-        userId: Joi.number().integer().min(1).required()
+        post: Joi.string().length(24).required()
     });
     return schema.validate(data);
 };
 
-module.exports.router = router;
-module.exports.likes = likeDB;
+exports.router = router;
+exports.Like = Like;
