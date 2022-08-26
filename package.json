@@ -1,10 +1,28 @@
 {
+  "name": "socialMedia",
+  "version": "1.0.0",
+  "description": "",
+  "main": "socialMedia.js",
+  "scripts": {
+    "test": "jest --watchAll --verbose"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.0.1",
     "config": "^3.3.7",
+    "express-async-errors": "^3.1.1",
     "joi-password-complexity": "^5.1.0",
     "jsonwebtoken": "^8.5.1",
     "mongod": "^2.0.0",
-    "mongoose": "^6.5.2"
+    "mongoose": "^6.5.2",
+    "supertest": "^6.2.4",
+    "swagger-jsdoc": "^6.2.5",
+    "swagger-ui-express": "^4.5.0",
+    "winston": "^3.8.1"
+  },
+  "devDependencies": {
+    "jest": "^28.1.3"
   }
 }

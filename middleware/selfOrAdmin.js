@@ -10,7 +10,6 @@ module.exports = function(req, res, next){
         if(!decodedUser.isAdmin && decodedUser._id != req.params.id){
             return res.status(403).send('Access denied!');
         }
-
         next();
     }
     catch{
