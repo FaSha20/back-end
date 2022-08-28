@@ -9,8 +9,17 @@ const {createLike, findAll, findOne, findAllOne, updateLike, deleteLike} = requi
 
 
 
-//GET ALL
 router.get('/', auth,  async (req, res) => {
+    /*
+        #swagger.tags = ['Like'] 
+        #swagger.path = 'api/likes/'
+        #swagger.method = 'get'
+        #swagger.description = 'get all likes'
+        #swagger.responses[200] = {
+            schema: {$ref: "#/definitions/Like"},
+            description: 'Return all likes'
+        }
+     */
     const postId = req.query.post;
     try{
         if(postId){                                        /*get All likes of a post*/
@@ -27,8 +36,24 @@ router.get('/', auth,  async (req, res) => {
     }
 });
 
-//GET BY ID
+
 router.get('/:id', auth, async(req, res) => {
+    /*
+    #swagger.tags = ['Like'] 
+        #swagger.path = 'api/likes/{id}'
+        #swagger.method = 'get'
+        #swagger.description = 'Get a Like'
+        #swagger.parameters["id"] = {
+            in: 'path',
+            description: 'like id',
+            required: true,
+            type: 'string'
+        }
+        #swagger.responses[200] = {
+            schema: {$ref: "#/definitions/Like"},
+            description: 'Return the Updated Like'
+        }
+    */
     try{
         const like = await findOne(req);
         res.send(like);
@@ -38,8 +63,22 @@ router.get('/:id', auth, async(req, res) => {
     }
 });
 
-//CREATE 
+ 
 router.post('/', auth, async(req, res) => {
+    /*
+        #swagger.tags = ['Like'] 
+        #swagger.path = 'api/likes/'
+        #swagger.method = 'like'
+        #swagger.description = 'Create a New Like'
+        #swagger.responses[200] = {
+            schema: {$ref: "#/definitions/Like"},
+            description: 'Return the Created Like'
+        }
+        #swagger.requestBody = {
+            required: true,
+            schema: {$ref: "#/definitions/Like"}
+    }
+     */
     try{
         const like = await createLike(req);
         res.send(_.pick(like, ['_id', 'user', 'post', 'createdAt']));
@@ -49,19 +88,56 @@ router.post('/', auth, async(req, res) => {
     }
 });
 
-//UPDATE 
+
 router.put('/:id', [auth, selfOrAdmin], async(req, res) => {
+    /*
+        #swagger.tags = ['Like'] 
+        #swagger.path = 'api/likes/{id}'
+        #swagger.method = 'put'
+        #swagger.description = 'Update a Like'
+        #swagger.parameters["id"] = {
+            in: 'path',
+            description: 'like id',
+            required: true,
+            type: 'objectId'
+        }
+        #swagger.responses[200] = {
+            schema: {$ref: "#/definitions/Like"},
+            description: 'Return the Updated Like'
+        }
+        #swagger.requestBody = {
+            required: true,
+            schema: {$ref: "#/definitions/Like"}
+    }
+     */
     try{
     const like = await updateLike(req);
-    res.send(_.pick(like, ['_id', 'user', 'post', 'updatedAt']));
+    res.send(_.pick(like, ['_id', 'user', 'like', 'updatedAt']));
     }
     catch(err){
         res.status(400).send(err.message);
     }
 });
 
-//DELETE 
+
 router.delete('/:id', [auth, selfOrAdmin], async(req, res) => {
+    /*
+        #swagger.tags = ['Like'] 
+        #swagger.path = 'api/likes/{id}'
+        #swagger.method = 'delete'
+        #swagger.description = 'Remove a Like'
+        #swagger.responses[200] = {
+            schema: {$ref: "#/definitions/Like"},
+            description: 'Return the Removed Like'
+        }
+        #swagger.parameters["id"] = {
+            in: 'path',
+            description: 'like id',
+            required: true,
+            type: 'objectId'
+        }
+    }
+     */
     try{
         const like = await deleteLike(req);
         res.send(_.pick(like, ['_id', 'user', 'post', 'updatedAt']));

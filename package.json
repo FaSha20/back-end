@@ -4,6 +4,8 @@
   "description": "",
   "main": "socialMedia.js",
   "scripts": {
+    "start": "node index.js",
+    "swagger-autogen": "node swagger.js",
     "test": "jest --watchAll --verbose"
   },
   "keywords": [],
@@ -17,7 +19,9 @@
     "jsonwebtoken": "^8.5.1",
     "mongod": "^2.0.0",
     "mongoose": "^6.5.2",
+    "mongoose-to-swagger": "^1.4.0",
     "supertest": "^6.2.4",
+    "swagger-autogen": "^2.21.5",
     "swagger-jsdoc": "^6.2.5",
     "swagger-ui-express": "^4.5.0",
     "winston": "^3.8.1"

@@ -1,4 +1,4 @@
-const {User} = require('../../../user/user_model');
+const {User} = require('../../../entities/user/user_model');
 const jwt = require('jsonwebtoken');
 const config = require('config');
 const mongoose = require('mongoose');

@@ -12,7 +12,7 @@ const complexityOptions = {
     requirementCount: 3,
 }
 
-const userSchema = mongoose.Schema({
+const fields = {
     name:{
         type: String,
         required: true
@@ -42,13 +42,19 @@ const userSchema = mongoose.Schema({
         type: Boolean,
         default: false
     }
-},{ timestamps: true });
+}
+
+const userSchema = mongoose.Schema(fields, { timestamps: true });
 
 
 /*create a json web token with env-var private key */
 userSchema.methods.generateAuthToken = function(){
     const token = jwt
-        .sign({_id: this.id, isAdmin: this.isAdmin}, config.get('jwtPrivateKey'));
+        .sign(
+            {_id: this.id, isAdmin: this.isAdmin }, 
+            config.get('jwtPrivateKey'), 
+            {expiresIn: '1h'}
+        );
     return token;
 };
 
@@ -56,3 +62,4 @@ const User = mongoose.model('User', userSchema);
 
 exports.User = User;
 exports.complexityOptions = complexityOptions;
+

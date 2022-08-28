@@ -1,1 +1,7 @@
 node_modules/
+coverage/
+package-lock.json
+test/*.json
+swagger_output.json
+swagger.js
+*.log

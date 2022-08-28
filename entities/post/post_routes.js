@@ -9,8 +9,18 @@ const {createPost, findAll, findOne, findAllOne, updatePost, deletePost} = requi
 
 
 
-//GET ALL
+
 router.get('/', auth,  async (req, res) => {
+    /*
+        #swagger.tags = ['Post'] 
+        #swagger.path = 'api/posts/'
+        #swagger.method = 'get'
+        #swagger.description = 'get all posts'
+        #swagger.responses[200] = {
+            schema: {$ref: "#/definitions/Post"},
+            description: 'Return all posts'
+        }
+     */
     const userId = req.query.user;
     try{
         if(userId){                                        /*get All posts of a user*/
@@ -27,8 +37,24 @@ router.get('/', auth,  async (req, res) => {
     }
 });
 
-//GET BY ID
+
 router.get('/:id', auth, async(req, res) => {
+    /*
+    #swagger.tags = ['Post'] 
+        #swagger.path = 'api/posts/{id}'
+        #swagger.method = 'get'
+        #swagger.description = 'Get a Post'
+        #swagger.parameters["id"] = {
+            in: 'path',
+            description: 'post id',
+            required: true,
+            type: 'string'
+        }
+        #swagger.responses[200] = {
+            schema: {$ref: "#/definitions/Post"},
+            description: 'Return the Updated Post'
+        }
+    */
     try{
         const post = await findOne(req);
         res.send(post);
@@ -38,8 +64,22 @@ router.get('/:id', auth, async(req, res) => {
     }
 });
 
-//CREATE 
+
 router.post('/', auth, async(req, res) => {
+    /*
+        #swagger.tags = ['Post'] 
+        #swagger.path = 'api/posts/'
+        #swagger.method = 'post'
+        #swagger.description = 'Create a New Post'
+        #swagger.responses[200] = {
+            schema: {$ref: "#/definitions/Post"},
+            description: 'Return the Created Post'
+        }
+        #swagger.requestBody = {
+            required: true,
+            schema: {$ref: "#/definitions/Post"}
+    }
+     */
     try{
         const post = await createPost(req);
         res.send(_.pick(post, ['_id', 'title', 'text', 'createdAt']));
@@ -49,8 +89,28 @@ router.post('/', auth, async(req, res) => {
     }
 });
 
-//UPDATE 
-router.put('/:id', [auth, selfOrAdmin], async(req, res) => {
+
+router.put('/:id', selfOrAdmin, async(req, res) => {
+    /*
+        #swagger.tags = ['Post'] 
+        #swagger.path = 'api/posts/{id}'
+        #swagger.method = 'put'
+        #swagger.description = 'Update a Post'
+        #swagger.parameters["id"] = {
+            in: 'path',
+            description: 'post id',
+            required: true,
+            type: 'objectId'
+        }
+        #swagger.responses[200] = {
+            schema: {$ref: "#/definitions/Post"},
+            description: 'Return the Updated Post'
+        }
+        #swagger.requestBody = {
+            required: true,
+            schema: {$ref: "#/definitions/Post"}
+    }
+     */
     try{
     const post = await updatePost(req);
     res.send(_.pick(post, ['_id', 'title', 'text', 'createdAt']));
@@ -60,8 +120,25 @@ router.put('/:id', [auth, selfOrAdmin], async(req, res) => {
     }
 });
 
-//DELETE 
-router.delete('/:id', [auth, selfOrAdmin], async(req, res) => {
+
+router.delete('/:id', selfOrAdmin, async(req, res) => {
+    /*
+        #swagger.tags = ['Post'] 
+        #swagger.path = 'api/posts/{id}'
+        #swagger.method = 'delete'
+        #swagger.description = 'Remove a Post'
+        #swagger.responses[200] = {
+            schema: {$ref: "#/definitions/Post"},
+            description: 'Return the Removed Post'
+        }
+        #swagger.parameters["id"] = {
+            in: 'path',
+            description: 'post id',
+            required: true,
+            type: 'objectId'
+        }
+    }
+     */
     try{
         const post = await deletePost(req);
         res.send(_.pick(post, ['_id', 'title', 'text']));

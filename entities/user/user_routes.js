@@ -9,14 +9,39 @@ const {createUser, findAll, findOne, updateUser, deleteUser} = require('./user_s
 
 
 
-//GET ALL
 router.get('/',  async (req, res) => {
+    /*
+        #swagger.tags = ['User'] 
+        #swagger.path = 'api/users/'
+        #swagger.method = 'get'
+        #swagger.description = 'get all users'
+        #swagger.responses[200] = {
+            schema: {$ref: "#/definitions/User"},
+            description: 'Return all users'
+        }
+     */
     const users = await findAll(req);
     res.send(users);
 });
 
-//GET BY ID
+
 router.get('/:id', auth, async(req, res) => {
+    /*
+    #swagger.tags = ['User'] 
+        #swagger.path = 'api/users/{id}'
+        #swagger.method = 'get'
+        #swagger.description = 'Get a User'
+        #swagger.parameters["id"] = {
+            in: 'path',
+            description: 'user id',
+            required: true,
+            type: 'string'
+        }
+        #swagger.responses[200] = {
+            schema: {$ref: "#/definitions/User"},
+            description: 'Return the Updated User'
+        }
+    */
     try{
         const user = await findOne(req);
         res.send(user);
@@ -26,11 +51,24 @@ router.get('/:id', auth, async(req, res) => {
     }
 });
 
-//CREATE 
-router.post('/', async(req, res) => {
+
+router.post('/', async(req, res) => { 
+     /*
+        #swagger.tags = ['User'] 
+        #swagger.path = 'api/users/'
+        #swagger.method = 'post'
+        #swagger.description = 'Create a New User'
+        #swagger.responses[200] = {
+            schema: {$ref: "#/definitions/User"},
+            description: 'Return the Created User'
+        }
+        #swagger.requestBody = {
+            required: true,
+            schema: {$ref: "#/definitions/User"}
+    }
+     */
     try{
         const user = await createUser(req);
-        console.log(user.token);
         res.header('x-auth-token', user.token)
             .send(_.pick(user, ['_id', 'name', 'email', 'isAdmin', 'createdAt']));
     }
@@ -40,8 +78,28 @@ router.post('/', async(req, res) => {
     }
 });
 
-//UPDATE 
-router.put('/:id', [auth, selfOrAdmin], async(req, res) => {
+
+router.put('/:id', selfOrAdmin, async(req, res) => {
+     /*
+        #swagger.tags = ['User'] 
+        #swagger.path = 'api/users/{id}'
+        #swagger.method = 'put'
+        #swagger.description = 'Update a User'
+        #swagger.parameters["id"] = {
+            in: 'path',
+            description: 'user id',
+            required: true,
+            type: 'objectId'
+        }
+        #swagger.responses[200] = {
+            schema: {$ref: "#/definitions/User"},
+            description: 'Return the Updated User'
+        }
+        #swagger.requestBody = {
+            required: true,
+            schema: {$ref: "#/definitions/User"}
+    }
+     */
     try{
     const user = await updateUser(req);
     res.header('x-auth-token', user.token)
@@ -53,8 +111,25 @@ router.put('/:id', [auth, selfOrAdmin], async(req, res) => {
     }
 });
 
-//DELETE 
-router.delete('/:id', [auth, selfOrAdmin], async(req, res) => {
+
+router.delete('/:id', selfOrAdmin, async(req, res) => {
+    /*
+        #swagger.tags = ['User'] 
+        #swagger.path = 'api/users/{id}'
+        #swagger.method = 'delete'
+        #swagger.description = 'Remove a User'
+        #swagger.responses[200] = {
+            schema: {$ref: "#/definitions/User"},
+            description: 'Return the Removed User'
+        }
+        #swagger.parameters["id"] = {
+            in: 'path',
+            description: 'user id',
+            required: true,
+            type: 'objectId'
+        }
+    }
+     */
     try{
         const user = await deleteUser(req);
         res.send(_.pick(user, ['_id', 'name', 'email']));
