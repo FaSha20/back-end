@@ -1,3 +1,4 @@
 {
-    "jwtPrivateKey":""
+    "jwtPrivateKey":"key",
+    "db":"mongodb://localhost/socialMedia"
 }
